@@ -1,3 +1,5 @@
+
+
 const $ =document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
 const heading= $('header h2')
@@ -11,7 +13,10 @@ const nextBtn = $('.btn-next')
 const prevBtn = $('.btn-prev')
 const repeatBtn = $('.btn-repeat')
 const randomBtn = $('.btn-random')
+const playlist = $('.playlist')
 const app={
+    isRandom: false,
+    isRepeat: false,
     isPlaying: false,
     currentIndex: 0,
     defineProperties: function(){
@@ -72,9 +77,9 @@ const app={
     ],
 
     render:function(){
-        const htmls = this.songs.map(song=>{
+        const htmls = this.songs.map((song,index)=>{
             return `
-            <div class="song">
+            <div class="song ${index === this.currentIndex ? 'active': ''}" data-index=${index}>
                     <div >
                       <div class="thumb" style="background-image: url('${song.image}');"></div>
                     </div>
@@ -83,7 +88,7 @@ const app={
                         <small class="band">${song.singer}</small>
                     </div>
                     <div class="option">
-                        <i class="fa-solid fa-ellipsis"></i>
+                        <i class="btn-option fa-solid fa-ellipsis"></i>
                     </div>
                 </div>
                 `
@@ -118,16 +123,35 @@ const app={
             }
         }
         nextBtn.onclick = function(){
-            _this.nextSong();
+            if(_this.randomBtn){
+                _this.randomSong()
+            }else{
+                _this.nextSong();
+            }
             audio.play();
             audio.ontimeupdate();
+            _this.render()
         }
         prevBtn.onclick = function(){
-            this.prevSong();
+            if(_this.randomBtn){
+                _this.randomSong()
+            }else{
+                _this.prevSong();
+            }
             audio.play();
             audio.ontimeupdate();
+            _this.render()
         }
-        randomBtn.onclick
+        randomBtn.onclick =  function(e){
+            _this.randomBtn = !_this.randomBtn;
+            randomBtn.classList.toggle('active',_this.randomBtn)
+            repeatBtn.classList.remove('active')
+        }
+        repeatBtn.onclick =  function(e){
+            _this.repeatBtn = !_this.repeatBtn;
+            repeatBtn.classList.toggle('active',_this.repeatBtn)
+            randomBtn.classList.remove('active')
+        }
         //Xử lý khi ấn play
         audio.onplay = function(){
             cdThumbAnimate.play();
@@ -152,6 +176,25 @@ const app={
             const seekTime = audio.duration/ 100* e.target.value;
             audio.currentTime = seekTime;
         }
+        audio.onended = function(){
+            if(_this.repeatBtn){
+                audio.play();
+            }else{
+                nextBtn.onclick();
+                audio.play();
+            }
+        }
+        playlist.onclick = function(e){
+            const songNode = e.target.closest('.song:not(.active)')
+            if(songNode|| e.target.closest('.option')){
+                if(songNode){
+                    _this.currentIndex = Number(songNode.dataset.index)
+                    _this.loadCurrentSong();
+                    _this.render();
+                    audio.play();
+                }
+            }
+        }
     },
     loadCurrentSong: function(){
         heading.textContent = this.currentSong.name
@@ -170,6 +213,14 @@ const app={
         if(this.currentIndex <=0){
             this.currentIndex = this.songs.length;
         }
+        this.loadCurrentSong();
+    },
+    randomSong:function(){
+        let newIndex;
+        do{
+            newIndex = Math.floor(Math.random()*this.songs.length)
+        }while(newIndex == this.currentIndex)
+        this.currentIndex = newIndex
         this.loadCurrentSong();
     },
     start:function(){

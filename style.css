@@ -153,10 +153,11 @@ header h2 {
 
 .song.active {
   background-color: var(--primary-color);
+  color: #ebebeb;
 }
-
 .song:active {
   opacity: 0.8;
+  
 }
 
 .song.active .option,
@@ -171,6 +172,7 @@ header h2 {
   border-radius: 50%;
   background-size: cover;
   margin: 0 8px;
+  box-shadow: #05baf1 0px 7px 29px 0px;
 }
 
 .song .body {
@@ -192,4 +194,22 @@ header h2 {
   padding: 16px 8px;
   color: #999;
   font-size: 18px;
+}
+.song:hover{
+  background-color: var(--primary-color);
+  color: #ebebeb;
+  box-shadow: #05baf1 0px 7px 29px 0px;
+}
+.option{
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+.option:hover{
+  background-color: #d4d1d127;
+}
+.option .btn-option{
+  display: flex;
+  justify-content: center;
+  color: #fff;
 }
